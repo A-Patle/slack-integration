@@ -70,7 +70,7 @@ export const onboardUser = async (username, role) => {
 };
 
 export const resetPassword = async (username) => {
-  const newPass = generatePassword(8);
+  const newPass = generatePassword();
 
   const sql = `
     ALTER USER "${username}" 
@@ -81,7 +81,7 @@ export const resetPassword = async (username) => {
   return newPass;
 };
 
-function generatePassword(length = 8) {
+function generatePassword(length = 14) {
   const chars =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*!';
   let password = '';
