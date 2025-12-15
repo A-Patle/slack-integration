@@ -48,7 +48,7 @@ export const onboardUser = async (username, role) => {
 
   const createUser = `
     CREATE USER IF NOT EXISTS "${username}"
-    PASSWORD = "${generatePassword}"
+    PASSWORD = 'Temp@123'
     MUST_CHANGE_PASSWORD = TRUE;
   `;
 
@@ -70,7 +70,7 @@ export const onboardUser = async (username, role) => {
 };
 
 export const resetPassword = async (username) => {
-  const newPass = 'Reset@' + Math.floor(Math.random() * 90000 + 10000);
+  const newPass = generatePassword(8);
 
   const sql = `
     ALTER USER "${username}" 
