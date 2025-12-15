@@ -1,45 +1,6 @@
-import snowflake from 'snowflake-sdk';
-import dotenv from 'dotenv';
-dotenv.config();
-
-const connection = snowflake.createConnection({
-  account: process.env.SNOWFLAKE_ACCOUNT,
-  username: process.env.SNOWFLAKE_USER,
-  password: process.env.SNOWFLAKE_PASSWORD,
-  role: process.env.SNOWFLAKE_ROLE,
-  warehouse: 'COMPUTE_WH',
-});
-
-connection.connect((err) => {
-  if (err) console.error('Snowflake connection error:', err);
-  else console.log('Connected to Snowflake!');
-});
-
-// Execute SQL helper
-function execSQL(query) {
-  return new Promise((resolve, reject) => {
-    connection.execute({
-      sqlText: query,
-      complete: (err, stmt, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      },
-    });
-  });
-}
-
-const roleExists = async (role) => {
-  const sql = `SHOW ROLES LIKE '${role}'`;
-  const rows = await execSQL(sql);
-  return rows.length > 0;
-};
-
-const ALLOWED_ROLES = ['PUBLIC', 'DEV_ROLE', 'ANALYST_ROLE'];
-
-const createRole = async (role) => {
-  const sql = `CREATE ROLE IF NOT EXISTS "${role}"`;
-  await execSQL(sql);
-};
+import { execSQL } from './sqlHelper.js';
+import { ALLOWED_ROLES, roleExists, createRole } from './roleService.js';
+import { generatePassword } from '../utils/passwordUtil.js';
 
 export const onboardUser = async (username, role) => {
   if (!ALLOWED_ROLES.includes(role)) {
@@ -54,16 +15,12 @@ export const onboardUser = async (username, role) => {
 
   await execSQL(createUser);
 
-  const exits = await roleExists(role);
-
-  if (!exits) {
+  const exists = await roleExists(role);
+  if (!exists) {
     await createRole(role);
   }
 
-  const grantRole = `
-    GRANT ROLE "${role}" TO USER "${username}";
-  `;
-
+  const grantRole = `GRANT ROLE "${role}" TO USER "${username}"`;
   await execSQL(grantRole);
 
   return true;
@@ -80,13 +37,3 @@ export const resetPassword = async (username) => {
   await execSQL(sql);
   return newPass;
 };
-
-function generatePassword(length = 14) {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*!';
-  let password = '';
-  for (let i = 0; i < length; i++) {
-    password = password + chars[Math.floor(Math.random() * chars.length)];
-  }
-  return password;
-}

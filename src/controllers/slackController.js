@@ -5,7 +5,7 @@ import { onboardUser, resetPassword } from "../services/snowflakeService.js";
 export const handleSlackCommand = async (req, res) => {
   const { user_id, text, token, response_url } = req.body;
 
-  res.status(200).send("Processing your request..."); // Slack requires fast ACK
+  res.status(200).send("Processing your request..."); // Slack requires fast response 3 seconds
 
   if (!verifySlackToken(token)) {
     return sendSlackMessage(response_url, "Invalid Slack token.");
@@ -21,7 +21,7 @@ export const handleSlackCommand = async (req, res) => {
   try {
     if (operation === "onboard_user") {
       if (!username || !role) {
-        return sendSlackMessage(response_url, "Usage: /snowflake onboard_user <username> <role>");
+        return sendSlackMessage(response_url, "command: /snowflake onboard_user <username> <role>");
       }
       const result = await onboardUser(username, role);
       return sendSlackMessage(response_url, `User *${username}* onboarded with role *${role}*. User creation details: ${JSON.stringify(result)}`);
@@ -29,7 +29,7 @@ export const handleSlackCommand = async (req, res) => {
 
     if (operation === "reset_password") {
       if (!username) {
-        return sendSlackMessage(response_url, "Usage: /snowflake reset_password <username>");
+        return sendSlackMessage(response_url, "command: /snowflake reset_password <username>");
       }
       const newPass = await resetPassword(username);
       return sendSlackMessage(response_url, `Password reset for *${username}*: \`${newPass}\``);
