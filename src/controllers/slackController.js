@@ -24,7 +24,7 @@ export const handleSlackCommand = async (req, res) => {
         return sendSlackMessage(response_url, "Usage: /snowflake onboard_user <username> <role>");
       }
       const result = await onboardUser(username, role);
-      return sendSlackMessage(response_url, `User *${username}* onboarded with role *${role}*.`);
+      return sendSlackMessage(response_url, `User *${username}* onboarded with role *${role}*. User creation details: ${JSON.stringify(result)}`);
     }
 
     if (operation === "reset_password") {
