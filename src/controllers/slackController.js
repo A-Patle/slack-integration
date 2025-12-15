@@ -5,6 +5,8 @@ import { onboardUser, resetPassword } from "../services/snowflakeService.js";
 export const handleSlackCommand = async (req, res) => {
   const { user_id, text, token, response_url } = req.body;
 
+  res.status(200).send("Processing your request..."); // Slack requires fast ACK
+
   if (!verifySlackToken(token)) {
     return sendSlackMessage(response_url, "Invalid Slack token.");
   }

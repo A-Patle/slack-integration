@@ -48,7 +48,7 @@ export const onboardUser = async (username, role) => {
 
   const createUser = `
     CREATE USER IF NOT EXISTS "${username}"
-    PASSWORD = 'Temp@123'
+    PASSWORD = "${generatePassword}"
     MUST_CHANGE_PASSWORD = TRUE;
   `;
 
@@ -80,3 +80,13 @@ export const resetPassword = async (username) => {
   await execSQL(sql);
   return newPass;
 };
+
+function generatePassword(length = 8) {
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*!';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password = password + chars[Math.floor(Math.random() * chars.length)];
+  }
+  return password;
+}
